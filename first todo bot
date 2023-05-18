@@ -1,0 +1,84 @@
+from random import choice
+
+import telebot
+from telebot import types
+
+#import library
+
+token = "my personal token"
+
+bot = telebot.TeleBot(token)
+
+
+RANDOM_TASKS = ['Написать Лине', 'Выучить считалочку на китайском', 'Сделать презентацию', 'Отдохнуть', 'Заварить чай', 'Покушать', 'Погладить кота', 'Сделать 15 приседаний', 'Предложить Лине идеи для доработки бота']
+
+todos = dict() 
+
+#create dictionary for random
+
+
+HELP = """
+Список доступных команд:
+
+/help - чтобы увидеть перечень доступных команд
+/add + дата + задача - Чтобы добавить новую задачу
+    Например: /add 19.05 концерт Три Дня Дождя
+/show + дата - чтобы просмотреть все задачи,  заданные на дату
+    Например: /show сегодня
+
+/random - чтобы побаловаться с добавлением рандомных задач на сегодня, напишите команду
+
+"""
+
+def add_todo(date, task):
+    date = date.lower()
+    if todos.get(date) is not None:
+        todos[date].append(task)
+    else:
+        todos[date] = [task]
+
+@bot.message_handler(commands=["help"])
+def help(message):
+    bot.send_message(message.chat.id, HELP)
+
+@bot.message_handler(commands=["random"])
+def random(message):
+    task = choice(RANDOM_TASKS)
+    add_todo("сегодня", task)
+    bot.send_message(message.chat.id, f'Задача {task} добавлена на сегодня')
+
+
+@bot.message_handler(commands=['add'])
+def add(message):
+    _, date, tail = message.text.split(maxsplit=2)
+    task = ' '.join([tail])
+    add_todo(date, task)
+    bot.send_message(message.chat.id, f'Задача {task} добавлена на дату {date}')
+
+
+@bot.message_handler(commands=["show"])
+def print_(message):
+    date = message.text.split()[1].lower()
+    if date in todos:
+        tasks = ''
+        for task in todos[date]:
+            tasks += f'[ ] {task}\n'
+    else:
+        tasks = "Пока нет задач на эту дату, чтобы добавить, воспользуйся командой /add "
+    bot.send_message(message.chat.id, tasks)
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton("Хочу начать работу") 
+#create button
+    markup.add(btn1)
+    bot.send_message(message.chat.id, text="Привет, {0.first_name}! Я тестовый бот".format(message.from_user), reply_markup=markup)
+
+@bot.message_handler(content_types=['text'])
+def func(message):
+    if(message.text == "Хочу начать работу"):
+        bot.send_message(message.chat.id, HELP)
+
+bot.polling(none_stop=True)
+#none stop work
