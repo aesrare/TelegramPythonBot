@@ -10,8 +10,7 @@ token = "my personal token"
 bot = telebot.TeleBot(token)
 
 
-RANDOM_TASKS = ['Написать Лине', 'Выучить считалочку на китайском', 'Сделать презентацию', 'Отдохнуть', 'Заварить чай', 'Покушать', 'Погладить кота', 'Сделать 15 приседаний', 'Предложить Лине идеи для доработки бота']
-
+RANDOM_TASKS = ['']
 todos = dict() 
 
 #create dictionary for random
